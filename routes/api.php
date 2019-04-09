@@ -19,4 +19,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::name('api.')->group(function () {    
     Route::get('categories', 'CategoriesController@index')->name('categoriesIndex');
+
+    Route::prefix('books')->group(function () {
+        Route::get('/', 'BooksController@index')->name('booksIndex');
+        Route::post('create', 'BooksController@create')->name('booksCreate');
+    });
 });
