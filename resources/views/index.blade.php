@@ -13,12 +13,14 @@
 </head>
 <body>
     <div class="container">
+        <h2> Online Retailer for Technology Books</h2>
+
         <div class="card">
             <div class="card-header">Books</div>
             <div class="card-body">
-                @if(isset($books) && count($books) > 0)
+                @if(!empty($books))
                     <div class="table-responsive">
-                        <table class="table table-striped table-hover">
+                        <table class="table table-bordered">
                             <thead>
                             <tr>
                                 <th>ISBN</th>
@@ -28,6 +30,7 @@
                                 <th>Price</th>
                             </tr>
                             </thead>
+
                             <tbody>
                             @foreach($books as $book)
                                 <tr>
@@ -35,29 +38,18 @@
                                     <td>{{ $book->title }}</td>
                                     <td>{{ $book->author->name }}</td>
                                     <td>{{ implode(", ", $book->categories->pluck('name')->toArray()) }}</td>
-                                    <td>&pound;{{ $book->price }} GBP</td>
+                                    <td>{{ $book->price }} GBP</td>
                                 </tr>
                             @endforeach
                             </tbody>
-                            <tfoot>
-                            <tr>
-                                <th>ISBN</th>
-                                <th>Title</th>
-                                <th>Author</th>
-                                <th>Category</th>
-                                <th>Price</th>
-                            </tr>
-                            </tfoot>
-                        </table>
-
-                        {{ $books->links() }}
+                            
+                        </table>                        
                     </div>
                 @else
-                    <p class="mb-0">There are no books to display.</p>
+                    <p>There are no books to display.</p>
                 @endif
             </div>
         </div>
     </div>
-
 </body>
 </html>
