@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Validator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,10 +25,13 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Validator::extend('isbn', function ($attribute, $value, $parameters) {
-            // check if the isbn is valid.
-            $value = str_replace('-', '', $value);
-            $value = str_replace(' ', '', $value);
-            return is_numeric($value) && strlen($value) > 9 && strlen($value) < 14;
+            // check if the isbn is valid, ISBN-10, as per examples
+            
+            if (preg_match('/^978-(\d{10})$/', $value, $matches)) {
+                return true;
+            } else {
+                return false;
+            }            
         });
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\BookFullResource;
+use App\Http\Resources\BookResource;
 use App\Models\Author;
 use App\Models\Book;
 use App\Models\Category;
@@ -25,7 +26,7 @@ class BooksController extends Controller
             'title' => 'required',
             'author' => 'required',
             'category' => 'required',
-            'price' => 'required',
+            'price' => 'required|numeric',
         ], [
             'isbn.isbn' => 'Invalid ISBN'
         ]);
@@ -64,5 +65,50 @@ class BooksController extends Controller
             // Failed. Return 400 Bad Request.
             return Response::json($validator->errors(), 400);
         }
+    }
+    /*
+    * Retrieve books all, by category, by author
+    * @param Request $request
+    * @param Book Model
+    * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    */
+    public function index(Request $request, Book $book)
+    {
+        // check if author ir category is set
+        $author = $request->input('author');
+        $category = $request->input('category');
+
+        if (!empty($author) && !empty($category)) {
+            // fetch books by Author and Category
+            $books = $book->whereHas('author', function ($query) use ($author) {
+                $query->where('name', 'like', "$author");
+            })->whereHas('categories', function ($query) use ($category) {
+                $query->where('name', 'like', "$category");
+            })->get();
+        } else if (!empty($author)) {
+            // fetch books by author.
+            $books = $book->whereHas('author', function ($query) use ($author) {
+                $query->where('name', 'like', "$author");
+            })->get();
+        } else if (!empty($category)) {
+            // fetch books by category.
+            $books = $book->whereHas('categories', function ($query) use ($category) {
+                $query->where('name', 'like', "$category");
+            })->get();
+        } else {
+            // return all of the books.
+            $books = $book->all();
+        }
+        $booksIsbn = BookResource::collection($books);
+
+        if ($booksIsbn->count() > 0) {
+            $response = $booksIsbn;
+            $code = '200';
+        } else {
+            // if no books in specified filters
+            $response = 'Sorry!! No books for this search.';
+            $code = '202';
+        }
+        return Response::json($response, $code);
     }
 }
